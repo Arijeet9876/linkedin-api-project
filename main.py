@@ -4,7 +4,6 @@ import requests
 import os
 from dotenv import load_dotenv
 
-# Load API key from .env file
 load_dotenv()
 API_KEY = os.getenv("SCRAPINGBEE_API_KEY")
 
@@ -20,14 +19,17 @@ def extract_linkedin_data(input: LinkedInInput):
     params = {
         "api_key": API_KEY,
         "url": input.linkedin_url,
-        "render_js": "true"
+        "render_js": "true",
+        "premium_proxy": "true",
+        "block_resources": "false",
+        "wait": 5000
     }
 
     response = requests.get(url, params=params)
 
     if response.status_code != 200:
         raise HTTPException(
-            status_code=400, 
+            status_code=400,
             detail={
                 "error_status_code": response.status_code,
                 "error_response": response.text
