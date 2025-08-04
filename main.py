@@ -4,8 +4,9 @@ import requests
 import os
 from dotenv import load_dotenv
 
+# Load API key from .env file
 load_dotenv()
-API_KEY = os.getenv("PROXYCURL_API_KEY")
+API_KEY = os.getenv("SCRAPINGBEE_API_KEY")
 
 app = FastAPI()
 
@@ -14,13 +15,17 @@ class LinkedInInput(BaseModel):
 
 @app.post("/extract")
 def extract_linkedin_data(input: LinkedInInput):
-    url = "https://nubela.co/proxycurl/api/v2/linkedin"
-    headers = {"Authorization": f"Bearer {API_KEY}"}
-    params = {"url": input.linkedin_url}
+    url = "https://app.scrapingbee.com/api/v1/"
 
-    response = requests.get(url, headers=headers, params=params)
+    params = {
+        "api_key": API_KEY,
+        "url": input.linkedin_url,
+        "render_js": "true"  # Because LinkedIn loads data dynamically
+    }
+
+    response = requests.get(url, params=params)
 
     if response.status_code != 200:
         raise HTTPException(status_code=400, detail="Failed to fetch data from LinkedIn")
 
-    return response.json()
+    return {"status": "success", "raw_html": response.text}  # For now just return raw HTML
