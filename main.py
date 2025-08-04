@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import requests
@@ -36,4 +37,17 @@ def extract_linkedin_data(input: LinkedInInput):
             }
         )
 
-    return {"status": "success", "raw_html": response.text}
+    soup = BeautifulSoup(response.text, "lxml")
+
+    name_tag = soup.find("h1")
+    name = name_tag.get_text(strip=True) if name_tag else "Name not found"
+
+    headline_tag = soup.find("div", {"class": "text-body-medium break-words"})
+    headline = headline_tag.get_text(strip=True) if headline_tag else "Headline not found"
+
+    return {
+        "status": "success",
+        "name": name,
+        "headline": headline,
+        "raw_html_snippet": response.text[:500]
+    }
