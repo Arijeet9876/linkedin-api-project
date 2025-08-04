@@ -20,12 +20,18 @@ def extract_linkedin_data(input: LinkedInInput):
     params = {
         "api_key": API_KEY,
         "url": input.linkedin_url,
-        "render_js": "true"  # Because LinkedIn loads data dynamically
+        "render_js": "true"
     }
 
     response = requests.get(url, params=params)
 
     if response.status_code != 200:
-        raise HTTPException(status_code=400, detail="Failed to fetch data from LinkedIn")
+        raise HTTPException(
+            status_code=400, 
+            detail={
+                "error_status_code": response.status_code,
+                "error_response": response.text
+            }
+        )
 
-    return {"status": "success", "raw_html": response.text}  # For now just return raw HTML
+    return {"status": "success", "raw_html": response.text}
